@@ -1,6 +1,6 @@
 import React from 'react';
 import { MessageCircle, Send } from 'lucide-react';
-import { Twitter, Instagram } from 'lucide-react';
+import { Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const Footer = ({ scrollToSection }) => (
   <footer id="contact" className="py-16 bg-gray-50 border-t border-gray-200">
@@ -9,37 +9,37 @@ const Footer = ({ scrollToSection }) => (
         <div className="md:col-span-2">
           <h4 className="text-2xl font-black text-black mb-4">coinquest.com</h4>
           <p className="text-sm text-gray-600 mb-6 max-w-md">
-            COIN QUEST is organized by IoSC-EDC - Company no. IOS2025 registered at Delhi Tech Hub,
-            Sector 62, Noida, Delhi NCR, India. The innovative hackathon experience combining
-            auction strategy with collaborative innovation, pioneering the future of competitive
-            technology events.
+            COIN QUEST is organized by IoSC GGSIPU EDC – registered under GGSIPU, Delhi. This innovative hackathon experience combines auction strategy with collaborative innovation, pioneering the future of competitive technology events.
           </p>
           <p className="text-xs text-gray-500">© 2025 CoinQuest.com. All rights reserved.</p>
           <div className="flex items-center space-x-3 mt-6">
 
-
-
-<div className="flex space-x-2">
-  <button className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
-    <span className="sr-only">Twitter</span>
-    <Twitter className="h-4 w-4" />
-  </button>
-  <button className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
-    <span className="sr-only">Instagram</span>
-    <Instagram className="h-4 w-4" />
-  </button>
-  <button className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
-    <span className="sr-only">Chat</span>
-    <MessageCircle className="h-4 w-4" />
-  </button>
-  <button className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors">
-    <span className="sr-only">Send</span>
-    <Send className="h-4 w-4" />
-  </button>
-</div>
-
-
-
+            <div className="flex space-x-2">
+              <a
+                className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors"
+                href="https://www.linkedin.com/company/iosc-edc/"
+                target="_blank" rel="noopener noreferrer"
+              >
+                <span className="sr-only">LinkedIn</span>
+                <Linkedin className="h-4 w-4" />
+              </a>
+              <a
+                className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors"
+                href="https://www.instagram.com/iosc_edc/"
+                target="_blank" rel="noopener noreferrer"
+              >
+                <span className="sr-only">Instagram</span>
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a
+                className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors"
+                href="mailto:iosc.edc@gmail.com"
+                target="_blank" rel="noopener noreferrer"
+              >
+                <span className="sr-only">Chat</span>
+                <MessageCircle className="h-4 w-4" />
+              </a>
+            </div>
 
           </div>
         </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Zap } from 'lucide-react';
 
 const HeroSection = ({ scrollToSection }) => (
-  <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-50">
+  <section id="about" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-50">
     <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
       <div>
         <h1 className="text-7xl md:text-9xl font-black leading-tight mb-8">
