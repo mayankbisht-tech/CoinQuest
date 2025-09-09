@@ -1,4 +1,3 @@
-// CoinQuestFrontend/src/components/SignIn.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -65,9 +64,8 @@ const SignIn = () => {
       });
 
       if (response.data.success) {
-        // Use the login function from context to handle storing user and token
         login(response.data.user, response.data.token);
-        navigate('/vote'); // Redirect to the voting page
+        navigate('/vote'); 
       } else {
         throw new Error(response.data.message || 'Login failed. Please check your credentials.');
       }

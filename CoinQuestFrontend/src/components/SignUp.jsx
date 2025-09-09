@@ -44,7 +44,6 @@ const SignUp = () => {
     password: '',
     confirmPassword: ''
   });
-  // --- NEW: State to hold the selected role ---
   const [role, setRole] = useState('voter'); 
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -67,11 +66,10 @@ const SignUp = () => {
     setIsLoading(true);
 
     try {
-      // --- CHANGE IS HERE: Include the 'role' in the POST request data ---
       const response = await axios.post('http://localhost:5000/api/auth/register', {
         email: formData.email,
         password: formData.password,
-        role: role // Send the selected role to the backend
+        role: role 
       });
 
       if (response.data.success) {
@@ -130,7 +128,6 @@ const SignUp = () => {
                 ))}
               </div>
               
-              {/* --- NEW: Role Selection Radio Buttons --- */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Register as a:</label>
                 <div className="flex items-center space-x-4">
@@ -164,7 +161,6 @@ const SignUp = () => {
                     </div>
                 </div>
               </div>
-              {/* --- End of New Section --- */}
 
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-md p-3">

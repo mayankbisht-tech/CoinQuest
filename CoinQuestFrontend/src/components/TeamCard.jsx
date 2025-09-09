@@ -1,58 +1,28 @@
-import React from "react";
-import { CheckCircle } from "lucide-react";
+import React from 'react';
 
-const TeamCard = ({ team, onVote, isLoggedIn, votedTeamId }) => {
-  const isVotedFor = votedTeamId === team._id;
-
+const TeamCard = ({ team, isSelected, onSelect }) => {
   return (
     <div
-      className={`bg-white rounded-2xl border ${
-        isVotedFor ? "border-teal-500 ring-2 ring-teal-200" : "border-gray-200"
-      } p-6 shadow-sm transition-all duration-300 ${
-        isLoggedIn ? "hover:shadow-lg hover:border-teal-300" : ""
+      onClick={onSelect}
+      className={`bg-white rounded-lg shadow p-6 cursor-pointer transition-all duration-200 ${
+        isSelected
+          ? 'ring-2 ring-blue-500 scale-105 shadow-xl'
+          : 'hover:shadow-lg hover:-translate-y-1'
       }`}
     >
-      <div className="flex items-start space-x-4">
-        {team.avatar && (
-          <img
-            src={team.avatar}
-            alt={team.name}
-            className="w-16 h-16 rounded-full flex-shrink-0"
-          />
-        )}
-        <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900">{team.name}</h3>
-          {team.description && (
-            <p className="text-gray-600 text-sm mt-1">{team.description}</p>
-          )}
+      <div className="flex items-center space-x-4">
+        <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+          <span className="text-xl font-bold text-gray-600">{team.name.charAt(0)}</span>
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-gray-800">{team.name}</h3>
+          <p className="text-sm text-gray-500">{team.description}</p>
         </div>
       </div>
-
-      <div className="flex items-center justify-between mt-6">
-        <div className="text-lg font-bold text-gray-800">
-          {team.votes.toLocaleString()}{" "}
-          <span className="text-sm font-medium text-gray-500">votes</span>
-        </div>
-
-        <button
-          onClick={() => onVote(team._id)}
-          disabled={!isLoggedIn}
-          className={`px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
-            isVotedFor
-              ? "bg-teal-500 text-white"
-              : !isLoggedIn
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-              : "bg-black text-white hover:bg-gray-800"
-          }`}
-        >
-          {isVotedFor ? (
-            <span className="flex items-center">
-              <CheckCircle className="h-4 w-4 mr-2" /> Voted
-            </span>
-          ) : (
-            "Vote"
-          )}
-        </button>
+      <div className="mt-4 text-right">
+        <p className="text-gray-700">
+          <span className="font-semibold">{team.votes}</span> Votes
+        </p>
       </div>
     </div>
   );

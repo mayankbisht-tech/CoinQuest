@@ -4,14 +4,10 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// Register a new user
 router.post("/register", async (req, res) => {
-  // --- CHANGE IS HERE: Destructure 'role' from the request body ---
   const { email, password, role } = req.body;
 
   try {
-    // Security check: Only allow 'voter' or 'participant' roles from this public endpoint.
-    // Admin creation should be handled by a separate, protected endpoint.
     if (role && !['voter', 'participant'].includes(role)) {
         return res.status(400).json({ message: "Invalid role specified." });
     }
@@ -21,8 +17,6 @@ router.post("/register", async (req, res) => {
       return res.status(409).json({ message: "User already exists with this email." });
     }
 
-    // --- CHANGE IS HERE: Pass the 'role' when creating a new user ---
-    // If no role is provided, the model's default ('voter') will be used.
     const user = new User({ email, password, role });
     await user.save();
     
@@ -40,8 +34,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-
-// Login a user (This remains unchanged)
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {

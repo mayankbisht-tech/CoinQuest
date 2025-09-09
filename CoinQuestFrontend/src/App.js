@@ -12,11 +12,10 @@ import SignUp from './components/SignUp';
 import VotingPage from './components/VotingPage';
 import { AuthProvider } from './context/AuthContext'; 
 
-// Import the route protection components we created earlier
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 
-const App = () => { // Renamed to App for standard practice, but CoinQuestWebsite is fine too.
+const App = () => { 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [email, setEmail] = useState('');
@@ -42,8 +41,6 @@ const App = () => { // Renamed to App for standard practice, but CoinQuestWebsit
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
     setIsMenuOpen(false);
   };
-
-  // Your MainLayout for the homepage is preserved
   const MainLayout = () => (
     <>
       <HeroSection scrollToSection={scrollToSection} />
@@ -58,15 +55,16 @@ const App = () => { // Renamed to App for standard practice, but CoinQuestWebsit
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-50">
-        <Navigation isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} activeSection={activeSection} scrollToSection={scrollToSection} />
+        <Navigation 
+          isMenuOpen={isMenuOpen} 
+          setIsMenuOpen={setIsMenuOpen} 
+          activeSection={activeSection} 
+          scrollToSection={scrollToSection} 
+        />
         
-        {/* --- ROUTING LOGIC IS UPDATED HERE --- */}
         <Routes>
-          {/* Your main website layout is the default route */}
           <Route path="/" element={<MainLayout />} />
 
-          {/* Sign-in and Sign-up are wrapped in PublicRoute */}
-          {/* This prevents logged-in users from seeing them */}
           <Route 
             path="/signin" 
             element={
@@ -84,8 +82,6 @@ const App = () => { // Renamed to App for standard practice, but CoinQuestWebsit
             } 
           />
 
-          {/* The voting page is wrapped in ProtectedRoute */}
-          {/* This requires users to be logged in to access it */}
           <Route 
             path="/vote" 
             element={
@@ -95,7 +91,6 @@ const App = () => { // Renamed to App for standard practice, but CoinQuestWebsit
             } 
           />
 
-          {/* Add a fallback to redirect any unknown URLs to the homepage */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
