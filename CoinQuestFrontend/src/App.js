@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import HeroSection from './components/HeroSection';
 import AuctionSection from './components/AuctionSection';
@@ -7,13 +7,16 @@ import HowItWorksSection from './components/HowItWorksSection';
 import ProtectionSection from './components/ProtectionSection';
 import NewsletterSection from './components/NewsletterSection';
 import Footer from './components/Footer';
-import MarqueeBanner from './components/MarqueeBanner';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import VotingPage from './components/VotingPage';
 import { AuthProvider } from './context/AuthContext'; 
 
-const CoinQuestWebsite = () => {
+// Import the route protection components we created earlier
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
+
+const App = () => { // Renamed to App for standard practice, but CoinQuestWebsite is fine too.
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [email, setEmail] = useState('');
@@ -40,6 +43,7 @@ const CoinQuestWebsite = () => {
     setIsMenuOpen(false);
   };
 
+  // Your MainLayout for the homepage is preserved
   const MainLayout = () => (
     <>
       <HeroSection scrollToSection={scrollToSection} />
@@ -48,26 +52,55 @@ const CoinQuestWebsite = () => {
       <ProtectionSection />
       <NewsletterSection email={email} setEmail={setEmail} />
       <Footer scrollToSection={scrollToSection} />
-      {/* <MarqueeBanner count={6} position="bottom" /> */}
     </>
   );
 
   return (
-    <AuthProvider> {/* Wrap your application with the AuthProvider */}
+    <AuthProvider>
       <div className="min-h-screen bg-gray-50">
-        {/* <MarqueeBanner count={8} position="top" /> */}
         <Navigation isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} activeSection={activeSection} scrollToSection={scrollToSection} />
         
+        {/* --- ROUTING LOGIC IS UPDATED HERE --- */}
         <Routes>
+          {/* Your main website layout is the default route */}
           <Route path="/" element={<MainLayout />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/vote" element={<VotingPage />} />
+
+          {/* Sign-in and Sign-up are wrapped in PublicRoute */}
+          {/* This prevents logged-in users from seeing them */}
+          <Route 
+            path="/signin" 
+            element={
+              <PublicRoute>
+                <SignIn />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/signup" 
+            element={
+              <PublicRoute>
+                <SignUp />
+              </PublicRoute>
+            } 
+          />
+
+          {/* The voting page is wrapped in ProtectedRoute */}
+          {/* This requires users to be logged in to access it */}
+          <Route 
+            path="/vote" 
+            element={
+              <ProtectedRoute>
+                <VotingPage />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Add a fallback to redirect any unknown URLs to the homepage */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
     </AuthProvider>
   );
 };
 
-export default CoinQuestWebsite;
-
+export default App;

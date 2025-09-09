@@ -25,7 +25,9 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['voter', 'admin'],
+    // --- CHANGE IS HERE: Added 'participant' to the enum ---
+    enum: ['voter', 'participant', 'admin'], 
+    // The default role for any new user will be 'voter'
     default: 'voter'
   },
   isActive: {
@@ -37,9 +39,10 @@ const userSchema = new mongoose.Schema({
     default: null
   }
 }, {
-  timestamps: true 
+  timestamps: true // Adds createdAt and updatedAt fields
 });
 
+// Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   
@@ -52,22 +55,12 @@ userSchema.pre("save", async function (next) {
   }
 });
 
+// Instance method to compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-userSchema.methods.generateAuthToken = function() {
-  return {
-    userId: this._id,
-    email: this.email,
-    role: this.role
-  };
-};
-
-userSchema.statics.findByEmail = function(email) {
-  return this.findOne({ email: email.toLowerCase() });
-};
-
+// Remove password from JSON output
 userSchema.methods.toJSON = function() {
   const userObject = this.toObject();
   delete userObject.password;

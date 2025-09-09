@@ -1,152 +1,108 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import io from "socket.io-client";
-import { useAuth } from "../context/AuthContext";
-import TeamCard from "./TeamCard";
-
-const socket = io("http://localhost:5000");
+// CoinQuestFrontend/src/components/VotingPage.jsx
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import TeamCard from './TeamCard';
+import { useAuth } from '../context/AuthContext'; // Import useAuth
 
 const VotingPage = () => {
-  const { user } = useAuth();
-  const [teams, setTeams] = useState([]);
-  const [votedFor, setVotedFor] = useState(null);
-  const [loading, setLoading] = useState(true);
+    const [teams, setTeams] = useState([]);
+    const [selectedTeamId, setSelectedTeamId] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const { logout } = useAuth(); // Get logout function from context
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setLoading(true);
-        
-        const teamsRes = await axios.get("http://localhost:5000/api/teams");
-        setTeams(teamsRes.data);
+    useEffect(() => {
+        const fetchTeamsAndUserVote = async () => {
+            setIsLoading(true);
+            setError('');
+            try {
+                // Fetch all teams in parallel with the user's current vote
+                const [teamsResponse, voteResponse] = await Promise.all([
+                    axios.get('http://localhost:5000/api/teams'),
+                    axios.get('http://localhost:5000/api/vote')
+                ]);
+                
+                setTeams(teamsResponse.data);
 
-        if (user) {
-          try {
-            const voteRes = await axios.get("http://localhost:5000/api/vote", {
-              headers: {
-                'Authorization': `Bearer ${user.token}`, 
-                'Content-Type': 'application/json'
-              }
-            });
-            
-            if (voteRes.data && voteRes.data.teamId) {
-              setVotedFor(voteRes.data.teamId);
+                if (voteResponse.data.teamId) {
+                    setSelectedTeamId(voteResponse.data.teamId);
+                }
+            } catch (err) {
+                setError('Failed to load voting data. Please refresh the page.');
+                console.error("Fetch Error:", err);
+            } finally {
+                setIsLoading(false);
             }
-          } catch (voteErr) {
-            console.log("No existing vote found or error fetching vote:", voteErr.message);
-          }
+        };
+
+        fetchTeamsAndUserVote();
+    }, []);
+    
+    // Function to handle the final vote submission
+    const handleVoteSubmit = async () => {
+        if (!selectedTeamId) {
+            setError("Please select a team before submitting.");
+            return;
         }
-      } catch (err) {
-        console.error("Error fetching initial data:", err);
-      } finally {
-        setLoading(false);
-      }
+        setError('');
+        setSuccessMessage('');
+
+        try {
+            const response = await axios.post(`http://localhost:5000/api/vote/${selectedTeamId}`);
+            setSuccessMessage(response.data.message || "Your vote has been cast successfully!");
+            
+            // Refresh teams data to show new vote counts
+            const teamsResponse = await axios.get('http://localhost:5000/api/teams');
+            setTeams(teamsResponse.data);
+
+        } catch (err) {
+            setError(err.response?.data?.message || "An error occurred while submitting your vote.");
+            console.error("Vote Submit Error:", err);
+        }
     };
 
-    fetchInitialData();
+    if (isLoading) return <div className="text-center p-8 text-xl">Loading...</div>;
 
-    socket.on("voteUpdate", ({ teamId, votes }) => {
-      setTeams((currentTeams) =>
-        currentTeams.map((team) =>
-          team._id === teamId ? { ...team, votes } : team
-        )
-      );
-    });
-
-    return () => socket.off("voteUpdate");
-  }, [user]);
-
-  const handleVote = async (newTeamId) => {
-    if (!user) {
-      alert("Please sign in to vote");
-      return;
-    }
-
-    if (newTeamId === votedFor) return;
-
-    const previousVoteId = votedFor;
-    
-    setVotedFor(newTeamId);
-    setTeams((currentTeams) =>
-      currentTeams.map((team) => {
-        if (team._id === previousVoteId) {
-          return { ...team, votes: team.votes - 1 };
-        }
-        if (team._id === newTeamId) {
-          return { ...team, votes: team.votes + 1 };
-        }
-        return team;
-      })
-    );
-
-    try {
-      await axios.post(
-        `http://localhost:5000/api/teams/${newTeamId}/vote`,
-        {
-          previousVote: previousVoteId,
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${user.token}`, 
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-    } catch (err) {
-      console.error("Error updating vote:", err);
-      
-      setVotedFor(previousVoteId);
-      setTeams((currentTeams) =>
-        currentTeams.map((team) => {
-          if (team._id === previousVoteId) {
-            return { ...team, votes: team.votes + 1 };
-          }
-          if (team._id === newTeamId) {
-            return { ...team, votes: team.votes - 1 };
-          }
-          return team;
-        })
-      );
-      
-      alert("Failed to update vote. Please try again.");
-    }
-  };
-
-  if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
-      </div>
-    );
-  }
+        <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex justify-between items-center mb-6 border-b pb-4">
+                    <h1 className="text-3xl font-bold text-gray-800">Vote for a Team</h1>
+                    <button 
+                        onClick={logout} 
+                        className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-transform transform hover:scale-105"
+                    >
+                        Logout
+                    </button>
+                </div>
+                
+                {error && <p className="text-center text-red-600 font-semibold mb-4 p-3 bg-red-100 rounded-lg">{error}</p>}
+                {successMessage && <p className="text-center text-green-600 font-semibold mb-4 p-3 bg-green-100 rounded-lg">{successMessage}</p>}
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Vote for Your Favorite Team</h1>
-          {!user && (
-            <p className="text-gray-600">Please sign in to cast your vote</p>
-          )}
-          {user && votedFor && (
-            <p className="text-teal-600">You can change your vote at any time</p>
-          )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {teams.map((team) => (
+                        <TeamCard
+                            key={team._id}
+                            team={team}
+                            isSelected={selectedTeamId === team._id}
+                            onSelect={() => setSelectedTeamId(team._id)}
+                        />
+                    ))}
+                </div>
+
+                <div className="mt-8 flex flex-col items-center">
+                    <button
+                        onClick={handleVoteSubmit}
+                        disabled={!selectedTeamId}
+                        className="w-full max-w-md py-3 px-4 border border-transparent text-lg font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400 disabled:scale-100 disabled:cursor-not-allowed"
+                    >
+                        {selectedTeamId ? 'Submit Final Vote' : 'Select a Team to Vote'}
+                    </button>
+                </div>
+            </div>
         </div>
-        
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {teams.map((team) => (
-            <TeamCard
-              key={team._id}
-              team={team}
-              onVote={handleVote}
-              isLoggedIn={!!user}
-              votedTeamId={votedFor} 
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default VotingPage;

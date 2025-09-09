@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+// CoinQuestFrontend/src/components/SignIn.jsx
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
@@ -36,6 +37,7 @@ const SubmitButton = ({ color, isLoading, children }) => (
   </button>
 );
 
+
 const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -51,17 +53,6 @@ const SignIn = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const currentConfig = useMemo(() => ({
-    title: 'Voter Sign-In',
-    description: 'Enter your credentials to cast your vote.',
-    fields: [
-      { name: 'email', label: 'Email Address', type: 'email', placeholder: 'voter@example.com' },
-      { name: 'password', label: 'Password', type: 'password', placeholder: '••••••••' }
-    ],
-    buttonText: 'Sign In & Vote',
-    color: 'blue',
-  }), []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -74,28 +65,30 @@ const SignIn = () => {
       });
 
       if (response.data.success) {
-        const userData = {
-          ...response.data.user,
-          token: response.data.token 
-        };
-        
-        login(userData);
-        navigate('/vote');
+        // Use the login function from context to handle storing user and token
+        login(response.data.user, response.data.token);
+        navigate('/vote'); // Redirect to the voting page
       } else {
         throw new Error(response.data.message || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'An unexpected error occurred.';
+      setError(errorMessage);
       console.error('Login error:', err);
-      if (err.response) {
-        setError(err.response.data.message || 'Login failed. Please check your credentials.');
-      } else if (err.request) {
-        setError('Unable to connect to server. Please try again.');
-      } else {
-        setError(err.message);
-      }
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  const currentConfig = {
+    title: 'Voter Sign-In',
+    description: 'Enter your credentials to cast your vote.',
+    fields: [
+      { name: 'email', label: 'Email Address', type: 'email', placeholder: 'voter@example.com' },
+      { name: 'password', label: 'Password', type: 'password', placeholder: '••••••••' }
+    ],
+    buttonText: 'Sign In & Vote',
+    color: 'blue',
   };
 
   return (
